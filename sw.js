@@ -1,11 +1,11 @@
 /* Service worker: membuat form bisa dibuka tanpa sinyal dan mengirim antrean di latar belakang.
    Naikkan angka VERSI setiap kali index.html atau config.js diubah. */
-var VERSI = 'c86-v2';
+var VERSI = 'c86-v3';
 var BERKAS = ['./', 'index.html', 'config.js', 'jspdf.umd.min.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 importScripts('config.js');
 
 self.addEventListener('install', function (e) {
-  e.waitUntil(caches.open(VERSI).then(function (c) { return c.addAll(BERKAS); }).then(function () { return self.skipWaiting(); }));
+  e.waitUntil(caches.open(VERSI).then(function (c) { return c.addAll(BERKAS.map(function (u) { return new Request(u, { cache: 'reload' }); })); }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (ks) {
@@ -13,16 +13,26 @@ self.addEventListener('activate', function (e) {
   }).then(function () { return self.clients.claim(); }));
 });
 // Berkas form: ambil dari simpanan HP dulu, perbarui diam-diam bila ada sinyal.
+// Respons disalin ulang agar bersih dari tanda "redirected", yang ditolak Safari/iPhone saat membuka halaman.
+function bersih(r) {
+  return r.blob().then(function (b) { return new Response(b, { status: 200, statusText: 'OK', headers: r.headers }); });
+}
+function perbarui(c, kunci, req) {
+  return fetch(req, { cache: 'no-cache' }).then(function (r) { if (r && r.ok) return c.put(kunci, r.clone()).then(function () { return r; }); return r; });
+}
 self.addEventListener('fetch', function (e) {
   var u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== self.location.origin) return;
+  // Membuka aplikasi (dari ikon atau alamat apa pun di dalam folder ini) selalu dilayani dari index.html tersimpan.
+  var navigasi = e.request.mode === 'navigate';
   e.respondWith(caches.open(VERSI).then(function (c) {
-    return c.match(e.request, { ignoreSearch: true }).then(function (hit) {
-      var net = fetch(e.request).then(function (r) { if (r && r.ok) c.put(e.request, r.clone()); return r; });
-      if (hit) { e.waitUntil(net.catch(function () {})); return hit; }
+    var kunci = navigasi ? 'index.html' : e.request;
+    return c.match(kunci, { ignoreSearch: true }).then(function (hit) {
+      var net = perbarui(c, kunci, navigasi ? 'index.html' : e.request);
+      if (hit) { e.waitUntil(net.catch(function () {})); return bersih(hit); }
       return net;
     });
-  }));
+  }).catch(function () { return fetch(e.request); }));
 });
 
 // ---- kirim antrean saat sinyal kembali (Background Sync, Android/Chrome)
