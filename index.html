@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#143d36">
+<title>Checklist Harian Prinsip 8.6</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script src="config.js"></script>
+<style>
+  :root{--dark:#143d36;--mid:#1f5c50;--light:#e2ede9;--gold:#e9c46a;--bg:#f3f5f4;--line:#cfd8d5;--red:#b02020;--redbg:#fdeaea;--ok:#1d7a4f;--text:#18211f;--muted:#5d6b67}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.4}
+  header{background:var(--dark);color:#fff;padding:14px 16px 12px;text-align:center}
+  header h1{margin:0;font-size:18px;letter-spacing:.3px}
+  header p{margin:3px 0 0;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.4px}
+  .bar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px}
+  .bar .track{flex:1;height:6px;background:var(--light);border-radius:3px;overflow:hidden}
+  .bar .fill{height:100%;width:0;background:var(--mid);transition:width .2s}
+  .chip{flex:none;font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;background:#fff7e0;color:#8a5a00;border:1px solid #e0b93a}
+  .chip.ok{background:var(--light);color:var(--ok);border-color:var(--ok)}
+  header{position:relative;text-align:left;padding:12px 96px 12px 16px}
+  header h1{font-size:16px}
+  .two>*{min-width:0}
+  input[type=date]{min-width:0;max-width:100%}
+  .hbtn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;color:#fff;border:1.5px solid var(--gold);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;font-weight:700}
+  #hist{display:none;max-width:640px;margin:0 auto;padding:12px 12px 40px}
+  .hrow{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;border-top:1px solid var(--line);font-size:14px}
+  .hrow b{display:block}.hrow span{color:var(--muted);font-size:13px}
+  .hs{flex:none;text-align:right}.hs i{display:block;font-style:normal;font-size:12px;font-weight:700;color:var(--ok)}.hs i.t{color:var(--red)}.hs i.p{color:#8a5a00}
+  #hn{font-size:13px;color:var(--muted);margin:10px 0}
+  main{max-width:640px;margin:0 auto;padding:12px 12px 120px}
+  .hint{font-size:13px;color:var(--muted);margin:4px 4px 12px;font-style:italic}
+  section{background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:14px;overflow:hidden}
+  section>h2{margin:0;padding:10px 14px;background:var(--dark);color:#fff;font-size:14px;letter-spacing:.3px}
+  section>h2 small{display:block;font-weight:400;color:var(--gold);font-size:12px;margin-top:1px}
+  .pad{padding:12px 14px}
+  label.f{display:block;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:.3px}
+  input[type=text],input[type=date],select,textarea{display:block;width:100%;margin-top:4px;padding:11px 12px;font:inherit;font-size:16px;color:var(--text);background:#fff;border:1px solid #aab7b3;border-radius:8px;text-transform:none;font-weight:400;letter-spacing:0}
+  textarea{min-height:96px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--mid);outline-offset:1px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .item{padding:12px 14px;border-top:1px solid var(--line)}
+  .item:first-of-type{border-top:0}
+  .item.tidak{background:var(--redbg)}
+  .item.err,.field-err{box-shadow:inset 4px 0 0 var(--red)}
+  .item .q{display:flex;gap:10px;margin-bottom:9px}
+  .item .n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--light);color:var(--dark);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .item .t b{display:block;font-size:15px}
+  .item .t span{font-size:13px;color:var(--muted)}
+  .seg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .seg label{position:relative}
+  .seg input{position:absolute;opacity:0;inset:0}
+  .seg span{display:block;text-align:center;padding:11px 0;border:1.5px solid #aab7b3;border-radius:8px;font-weight:700;font-size:15px;background:#fff;user-select:none}
+  .seg input:focus-visible+span{outline:2px solid var(--mid);outline-offset:2px}
+  .seg input[value="Ya"]:checked+span{background:var(--ok);border-color:var(--ok);color:#fff}
+  .seg input[value="Tidak"]:checked+span{background:var(--red);border-color:var(--red);color:#fff}
+  .seg input[value="N/A"]:checked+span{background:#5d6b67;border-color:#5d6b67;color:#fff}
+  .note{margin-top:8px}
+  .note input{font-size:15px;padding:9px 11px}
+  .note-toggle{background:none;border:0;padding:8px 0 0;font:inherit;font-size:13px;color:var(--mid);text-decoration:underline}
+  .stop{display:none;background:var(--redbg);border:2px solid var(--red);border-radius:12px;padding:12px 14px;margin-bottom:14px;color:#5a1010}
+  .stop.on{display:block}
+  .stop b{color:var(--red);display:block;margin-bottom:4px}
+  .stop ol{margin:4px 0 0;padding-left:20px;font-size:14px}
+  .sum{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .pill{flex:none;padding:3px 12px;border-radius:99px;font-weight:700;font-size:13px;background:var(--light);color:var(--muted)}
+  .pill.ya{background:var(--ok);color:#fff}.pill.tidak{background:var(--red);color:#fff}
+  .aman{margin:12px 0 4px;font-weight:700;font-size:14px}
+  .seg.two-opt{grid-template-columns:1fr 1fr}
+  .sig{padding:12px 14px;border-top:1px solid var(--line)}
+  .sig:first-of-type{border-top:0}
+  .sig h3{margin:0 0 8px;font-size:14px;color:var(--dark)}
+  .sig h3 small{font-weight:400;color:var(--muted)}
+  .pad-wrap{position:relative;margin-top:8px;border:1.5px dashed #8a9995;border-radius:8px;background:#fff}
+  canvas{display:block;width:100%;aspect-ratio:5/2;touch-action:none;border-radius:8px}
+  .pad-wrap .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#9aa7a3;font-size:14px;pointer-events:none}
+  .sig-meta{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:13px;color:var(--muted)}
+  .btn-sm{background:#fff;border:1px solid #aab7b3;border-radius:6px;padding:7px 12px;font:inherit;font-size:13px;color:var(--text)}
+  footer.act{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:6}
+  footer.act .in{max-width:640px;margin:0 auto}
+  .btn{display:block;width:100%;padding:14px;border:0;border-radius:10px;background:var(--dark);color:#fff;font:inherit;font-size:16px;font-weight:700}
+  .btn:disabled{opacity:.6}
+  .btn.alt{background:#fff;color:var(--dark);border:1.5px solid var(--dark);margin-top:10px}
+  .msg{font-size:13px;margin:0 0 8px;color:var(--red);display:none}
+  .msg.on{display:block}
+  .queue{display:none;background:#fff7e0;border:1px solid #e0b93a;border-radius:10px;padding:10px 12px;margin-bottom:14px;font-size:14px}
+  .queue.on{display:block}
+  .queue button{margin-top:6px}
+  .demo{background:#fff7e0;border-bottom:1px solid #e0b93a;padding:8px 16px;font-size:13px;text-align:center}
+  #done{display:none;text-align:center;padding:36px 20px}
+  #done .ic{width:72px;height:72px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:38px;color:#fff;background:var(--ok)}
+  #done.pending .ic{background:#c98a00}
+  #done h2{margin:0 0 6px;font-size:20px}
+  #done p{margin:0 0 6px;color:var(--muted);font-size:14px}
+  #done .fn{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px;margin:12px 0}
+  .motto{text-align:center;font-size:12px;color:var(--muted);font-style:italic;margin-top:8px}
+</style>
+</head>
+<body>
+<header>
+  <button type="button" class="hbtn" id="bh">Riwayat</button>
+  <h1>DAILY ASSESSMENT CHECKLIST</h1>
+  <p>PRINSIP 8.6 &bull; 8 WAJIB &amp; 6 LANGKAH MENUJU SELAMAT</p>
+</header>
+<div id="demo" hidden></div>
+<div class="bar" id="bar"><span id="prog">0 / 22</span><div class="track"><div class="fill" id="fill"></div></div><span class="chip" id="off">Perlu sinyal</span></div>
+
+<main id="formview">
+  <div class="queue" id="queue">
+    <b><span id="qn">0</span> checklist belum terkirim</b> ke rekap (aman tersimpan di HP ini). Terkirim otomatis saat ada sinyal.<span id="qerr" style="display:block;color:var(--red);font-weight:700"></span>
+    <br><button type="button" class="btn-sm" id="qsend">Kirim sekarang</button>
+  </div>
+  <p class="hint">Isi setiap hari sebelum mulai kerja. Jawaban &ldquo;TIDAK&rdquo; pada item kritis = STOP WORK &amp; hubungi pengawas.</p>
+
+  <section>
+    <h2>IDENTITAS</h2>
+    <div class="pad">
+      <label class="f">Nama<input type="text" id="nama" autocomplete="name"></label>
+      <div class="two">
+        <label class="f">ID / NIK<input type="text" id="nik" inputmode="text" autocomplete="off"></label>
+        <label class="f">Jabatan<input type="text" id="jabatan"></label>
+      </div>
+      <div class="two">
+        <label class="f">Tanggal<input type="date" id="tanggal"></label>
+        <label class="f">Shift<select id="shift"></select></label>
+      </div>
+      <label class="f">Lokasi / Area Kerja<input type="text" id="lokasi"></label>
+      <label class="f">Pekerjaan Hari Ini<input type="text" id="pekerjaan"></label>
+      <label class="f" style="margin-bottom:0">Perusahaan / Unit<input type="text" id="unit"></label>
+    </div>
+  </section>
+
+  <div id="sections"></div>
+
+  <div class="stop" id="stop">
+    <b>&#9888; ADA JAWABAN &ldquo;TIDAK&rdquo; (<span id="ntidak">0</span> item)</b>
+    Jika termasuk item kritis:
+    <ol><li>STOP WORK segera</li><li>Laporkan ke Pengawas</li><li>Identifikasi &amp; kendalikan bahaya (JSEA / Assessment)</li><li>Lanjutkan hanya setelah disetujui aman</li></ol>
+  </div>
+
+  <section>
+    <h2>RINGKASAN ASSESSMENT HARI INI</h2>
+    <div class="pad">
+      <div class="sum"><span>Semua 8 Kegiatan Wajib sudah dilakukan?</span><span class="pill" id="sumA">&ndash;</span></div>
+      <div class="sum"><span>Semua 6 Langkah Menuju Selamat sudah diterapkan?</span><span class="pill" id="sumB">&ndash;</span></div>
+      <div id="amanWrap">
+        <p class="aman">Dinyatakan AMAN untuk memulai / melanjutkan pekerjaan?</p>
+        <div class="seg two-opt">
+          <label><input type="radio" name="aman" value="YA"><span>YA</span></label>
+          <label><input type="radio" name="aman" value="TIDAK"><span>TIDAK</span></label>
+        </div>
+      </div>
+      <label class="f" style="margin:16px 0 0">Catatan / Temuan / Tindakan Perbaikan<textarea id="catatan" placeholder="Kosongkan bila tidak ada"></textarea></label>
+    </div>
+  </section>
+
+  <section>
+    <h2>PENGESAHAN<small>Tanda tangan dengan jari di kotak</small></h2>
+    <div id="sigs"></div>
+  </section>
+  <p class="motto">Keselamatan adalah budaya kita &bull; Kerja Aman, Masa Depan Lebih Baik</p>
+</main>
+
+<div id="done">
+  <div class="ic" id="doneIc">&#10003;</div>
+  <h2 id="doneT"></h2>
+  <p id="doneP"></p>
+  <div class="fn" id="doneF"></div>
+  <button type="button" class="btn" id="again">Isi checklist baru</button>
+  <button type="button" class="btn alt" id="dpdf">Unduh PDF checklist ini</button>
+  <button type="button" class="btn alt" id="dh">Riwayat &amp; unduh per tanggal</button>
+  <button type="button" class="btn alt" id="dsend">Coba kirim ke rekap sekarang</button>
+</div>
+
+<div id="hist">
+  <section>
+    <h2>RIWAYAT &amp; UNDUH PDF<small>Pilih tanggal pengisian</small></h2>
+    <div class="pad">
+      <div class="two">
+        <label class="f">Dari tanggal<input type="date" id="hdari"></label>
+        <label class="f">Sampai tanggal<input type="date" id="hsampai"></label>
+      </div>
+      <button type="button" class="btn" id="hpdf">Unduh PDF</button>
+      <button type="button" class="btn alt" id="hshare">Bagikan PDF (WhatsApp, dll.)</button>
+      <p id="hn"></p>
+    </div>
+    <div id="hlist"></div>
+  </section>
+</div>
+
+<footer class="act" id="act"><div class="in">
+  <p class="msg" id="msg"></p>
+  <button type="button" class="btn" id="kirim">Simpan Checklist</button>
+</div></footer>
+
+<script src="jspdf.umd.min.js"></script>
+<script>/* Data checklist + pembuat PDF. Dipakai di browser (global) dan di Node (uji). */
+var SECTIONS = [
+  { id: 'A', judul: '8 KEGIATAN WAJIB DILAKUKAN PEKERJA', sub: 'Sebelum Memulai Pekerjaan', items: [
+    ['Memastikan kesiapan Fisik dan Mental (Fit To Work)', 'tubuh sehat, cukup istirahat, fokus, siap bekerja secara aman'],
+    ['Mengikuti Pertemuan Pra Kerja (Toolbox Meeting / PSM)', 'pahami rencana kerja, potensi bahaya, dan pengendalian sebelum mulai bekerja'],
+    ['Menerapkan Prosedur 8 Langkah Menuju Selamat', 'gunakan langkah keselamatan sebagai panduan utama sebelum bekerja'],
+    ['Memeriksa Alat Pelindung Diri (APD)', 'periksa kelengkapan & kondisi APD agar sesuai dengan perlindungan maksimal'],
+    ['Melakukan Inspeksi Peralatan (P2H / Pre-Start Check)', 'cek kondisi alat sebelum digunakan untuk mencegah kegagalan & kecelakaan'],
+    ['Kuasai Prosedur', 'pahami prosedur kerja / instruksi kerja / JSA dan langkah sesuai standar yang berlaku'],
+    ['Melaporkan ke Pengawas Siap untuk Bekerja', 'sampaikan bahwa seluruh persiapan sudah dilakukan dan siap memulai pekerjaan'],
+    ['Berdoa Sebelum Kerja', 'memohon perlindungan dan kelancaran agar pekerjaan dapat dilakukan dengan aman']
+  ]},
+  { id: 'B', judul: '6 LANGKAH ANTAM MENUJU SELAMAT', sub: 'Saat Melakukan Pekerjaan', items: [
+    ['BERHENTI SEJENAK', 'Ambillah waktu sejenak untuk memastikan pekerjaan siap dilakukan dengan aman'],
+    ['AMATI SEKELILING', 'Perhatikan area kerja, alat, dan kondisi sekitar sebelum bertindak'],
+    ['KENALI BAHAYA', 'Identifikasi semua potensi bahaya yang dapat menimbulkan risiko'],
+    ['KENDALI RISIKO', 'Tetapkan pengendalian yang tepat untuk menurunkan tingkat risiko'],
+    ['LAPORKAN', 'Segera laporkan kondisi tidak aman, insiden, atau potensi bahaya'],
+    ['LANJUT KERJA DENGAN AMAN', 'Berdoa sebelum lanjut bekerja, kemudian kerjakan tugas sesuai prosedur setelah semua pengendalian dipastikan aman']
+  ]},
+  { id: 'C', judul: 'PEMERIKSAAN TAMBAHAN', sub: 'APD, Peralatan & Area Kerja', items: [
+    ['APD lengkap & sesuai risiko pekerjaan', 'helm, safety shoes, kacamata, sarung tangan, dll.'],
+    ['APD dalam kondisi baik', 'tidak rusak, tidak kadaluarsa'],
+    ['Peralatan / mesin yang digunakan dalam kondisi baik & berfungsi normal', ''],
+    ['Guard / safety device terpasang dan tidak dilepas', ''],
+    ['Area kerja bersih, rapi, bebas trip hazard', 'housekeeping baik'],
+    ['Penerangan cukup, akses masuk-keluar aman, rambu terpasang', ''],
+    ['Tidak ada residual energy / energi tersimpan yang belum diisolasi (LOTO)', ''],
+    ['Tahu lokasi APAR, P3K, titik kumpul, dan jalur evakuasi terdekat', '']
+  ]}
+];
+
+var PENGESAHAN = [
+  { key: 'pekerja', judul: 'PEKERJA', ket: 'Dilakukan / Disusun' },
+  { key: 'gc', judul: 'PENGAWAS GRADE CONTROL', ket: 'Diperiksa' },
+  { key: 'area', judul: 'PENGAWAS AREA', ket: 'Diperiksa' }
+];
+
+/* Font standar PDF hanya mendukung Latin-1: ganti karakter di luar itu. */
+function pdfSafe(s) {
+  return String(s == null ? '' : s)
+    .replace(/[–—]/g, '-').replace(/[‘’]/g, "'").replace(/[“”]/g, '"')
+    .replace(/…/g, '...').replace(/•/g, '\xB7').replace(/[^\x09\x0A\x20-\x7E\xA0-\xFF]/g, '?');
+}
+
+/* d = { id, ident:{nama,nik,jabatan,tanggal,lokasi,shift,pekerjaan,unit},
+         jawab:{A1:'Ya'|'Tidak'|'N/A',...}, cat:{A1:'..'}, semuaWajib, semuaLangkah, aman,
+         catatan, ttd:{pekerja:{nama,jam,img},gc:{..},area:{..}}, waktuKirim } */
+function buildPdf(jsPDF, d, doc) {
+  if (doc) doc.addPage(); else doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
+  var startPage = doc.getNumberOfPages();
+  var M = 12, W = 210 - 2 * M, PH = 297, BOTTOM = PH - 14, y = M;
+  var DARK = [20, 61, 54], LIGHT = [226, 237, 233], GRID = [120, 130, 127], RED = [176, 32, 32];
+
+  function font(style, size, color) {
+    doc.setFont('helvetica', style); doc.setFontSize(size);
+    var c = color || [20, 20, 20]; doc.setTextColor(c[0], c[1], c[2]);
+  }
+  function need(h) { if (y + h > BOTTOM) { doc.addPage(); y = M; return true; } return false; }
+  function lines(t, w) { return doc.splitTextToSize(pdfSafe(t), w); }
+  function grid() { doc.setDrawColor(GRID[0], GRID[1], GRID[2]); doc.setLineWidth(0.2); }
+  function box(cx, cy, s, checked, color) {
+    doc.setDrawColor(60, 60, 60); doc.setLineWidth(0.25); doc.setFillColor(255, 255, 255);
+    doc.rect(cx - s / 2, cy - s / 2, s, s, 'FD');
+    if (checked) {
+      var c = color || [20, 20, 20]; doc.setDrawColor(c[0], c[1], c[2]); doc.setLineWidth(0.6);
+      doc.line(cx - s * 0.32, cy + s * 0.02, cx - s * 0.08, cy + s * 0.28);
+      doc.line(cx - s * 0.08, cy + s * 0.28, cx + s * 0.36, cy - s * 0.30);
+    }
+  }
+
+  // ---------- Kop
+  doc.setFillColor(DARK[0], DARK[1], DARK[2]); doc.rect(M, y, W, 16, 'F');
+  font('bold', 14, [255, 255, 255]); doc.text('DAILY ASSESSMENT CHECKLIST', 105, y + 7, { align: 'center' });
+  font('bold', 9, [233, 196, 106]); doc.text(pdfSafe('PRINSIP 8.6  •  8 WAJIB & 6 LANGKAH MENUJU SELAMAT'), 105, y + 12.5, { align: 'center' });
+  y += 19;
+  font('italic', 7.5, [70, 70, 70]);
+  doc.text('Isi setiap hari sebelum mulai kerja. Jawaban "TIDAK" pada item kritis = STOP WORK & hubungi pengawas.', 105, y, { align: 'center' });
+  y += 3.5;
+
+  // ---------- Identitas
+  var I = d.ident, LW = 31, VW = W / 2 - LW;
+  var idRows = [
+    ['NAMA', I.nama, 'ID / NIK', I.nik],
+    ['JABATAN', I.jabatan, 'TANGGAL', I.tanggalTampil || I.tanggal],
+    ['LOKASI / AREA KERJA', I.lokasi, 'SHIFT', I.shift],
+    ['PEKERJAAN HARI INI', I.pekerjaan, 'PERUSAHAAN / UNIT', I.unit]
+  ];
+  idRows.forEach(function (r) {
+    font('normal', 8.5);
+    var a = lines(r[1], VW - 3), b = lines(r[3], VW - 3);
+    var h = Math.max(a.length, b.length) * 3.6 + 2.6;
+    grid();
+    [0, 1].forEach(function (k) {
+      var x = M + k * (W / 2);
+      doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]); doc.rect(x, y, LW, h, 'FD');
+      doc.rect(x + LW, y, VW, h, 'S');
+      font('bold', 7.2, DARK); doc.text(r[k * 2], x + 1.5, y + 4.1);
+      font('normal', 8.5); doc.text(k ? b : a, x + LW + 1.5, y + 4.2);
+    });
+    y += h;
+  });
+  y += 3;
+
+  // ---------- Tabel checklist
+  var C = { no: 8, item: 101, ya: 11, tdk: 13, na: 11 }; C.cat = W - C.no - C.item - C.ya - C.tdk - C.na;
+  var X = { no: M }; X.item = X.no + C.no; X.ya = X.item + C.item; X.tdk = X.ya + C.ya; X.na = X.tdk + C.tdk; X.cat = X.na + C.na;
+
+  function tableHead(s, lanjut) {
+    doc.setFillColor(DARK[0], DARK[1], DARK[2]); doc.rect(M, y, W, 6, 'F');
+    font('bold', 8.5, [255, 255, 255]);
+    doc.text(pdfSafe(s.judul + ' - ' + s.sub + (lanjut ? ' (lanjutan)' : '')), M + 2, y + 4.1);
+    y += 6;
+    grid(); doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]); doc.rect(M, y, W, 5, 'FD');
+    [X.item, X.ya, X.tdk, X.na, X.cat].forEach(function (x) { doc.line(x, y, x, y + 5); });
+    font('bold', 7.5, DARK);
+    doc.text('No', X.no + C.no / 2, y + 3.5, { align: 'center' });
+    doc.text('Item Pemeriksaan', X.item + 1.5, y + 3.5);
+    doc.text('Ya', X.ya + C.ya / 2, y + 3.5, { align: 'center' });
+    doc.text('Tidak', X.tdk + C.tdk / 2, y + 3.5, { align: 'center' });
+    doc.text('N/A', X.na + C.na / 2, y + 3.5, { align: 'center' });
+    doc.text('Catatan', X.cat + 1.5, y + 3.5);
+    y += 5;
+  }
+
+  SECTIONS.forEach(function (s) {
+    need(6 + 5 + 12);
+    tableHead(s, false);
+    s.items.forEach(function (it, i) {
+      var key = s.id + (i + 1), ans = d.jawab[key], note = d.cat[key] || '';
+      font('normal', 7.8);
+      var t = lines(it[0] + (it[1] ? ' - ' + it[1] : ''), C.item - 3);
+      font('normal', 7.2);
+      var n = lines(note, C.cat - 2.5);
+      var h = Math.max(t.length * 3.3, n.length * 3.0, 3.3) + 2.6;
+      if (need(h)) tableHead(s, true);
+      grid();
+      if (ans === 'Tidak') { doc.setFillColor(252, 232, 232); doc.rect(M, y, W, h, 'FD'); } else doc.rect(M, y, W, h, 'S');
+      [X.item, X.ya, X.tdk, X.na, X.cat].forEach(function (x) { doc.line(x, y, x, y + h); });
+      font('normal', 7.8); doc.text(String(i + 1), X.no + C.no / 2, y + 4, { align: 'center' });
+      doc.text(t, X.item + 1.5, y + 4);
+      box(X.ya + C.ya / 2, y + h / 2, 3.3, ans === 'Ya');
+      box(X.tdk + C.tdk / 2, y + h / 2, 3.3, ans === 'Tidak', RED);
+      box(X.na + C.na / 2, y + h / 2, 3.3, ans === 'N/A');
+      font('normal', 7.2, ans === 'Tidak' ? RED : [40, 40, 40]); doc.text(n, X.cat + 1.2, y + 3.8);
+      y += h;
+    });
+    y += 3;
+  });
+
+  // ---------- Peringatan
+  need(13);
+  doc.setDrawColor(RED[0], RED[1], RED[2]); doc.setLineWidth(0.5); doc.setFillColor(253, 240, 240);
+  doc.rect(M, y, W, 11, 'FD');
+  font('bold', 8, RED); doc.text('! JIKA ADA JAWABAN "TIDAK" PADA ITEM KRITIS:', M + 2, y + 4);
+  font('normal', 7.3, [60, 20, 20]);
+  doc.text('1. STOP WORK segera  >  2. Laporkan ke Pengawas  >  3. Identifikasi & kendalikan bahaya (JSEA / Assessment)  >  4. Lanjutkan hanya setelah disetujui aman', M + 2, y + 8.3);
+  y += 14;
+
+  // ---------- Ringkasan
+  var catL; font('normal', 8.2); catL = lines(d.catatan || '-', W - 4);
+  need(5 + 18 + 6);
+  font('bold', 9, DARK); doc.text('RINGKASAN ASSESSMENT HARI INI', M, y + 3); y += 5;
+  var QW = 112;
+  [['Semua 8 Kegiatan Wajib sudah dilakukan?', d.semuaWajib, true],
+   ['Semua 6 Langkah Menuju Selamat sudah diterapkan?', d.semuaLangkah, true],
+   ['Dinyatakan AMAN untuk memulai / melanjutkan pekerjaan?', d.aman, false]].forEach(function (r) {
+    grid(); doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]); doc.rect(M, y, QW, 6, 'FD'); doc.rect(M + QW, y, W - QW, 6, 'S');
+    font('bold', 7.8, DARK); doc.text(r[0], M + 1.5, y + 4);
+    var ya = r[1] === 'YA', x0 = M + QW + 5;
+    box(x0, y + 3, 3.3, ya); font('bold', 8); doc.text('YA', x0 + 3, y + 4.1);
+    box(x0 + 16, y + 3, 3.3, !ya, RED); font('bold', 8, !ya ? RED : [20, 20, 20]); doc.text('TIDAK', x0 + 19, y + 4.1);
+    if (r[2]) { font('italic', 6.8, [90, 90, 90]); doc.text('(jelaskan di catatan)', x0 + 31, y + 4.1); }
+    y += 6;
+  });
+  y += 3;
+
+  // ---------- Catatan
+  need(5 + Math.min(catL.length, 4) * 3.7 + 4);
+  font('bold', 8.5, DARK); doc.text('Catatan / Temuan / Tindakan Perbaikan:', M, y + 3); y += 4.5;
+  var remaining = catL.slice();
+  while (remaining.length) {
+    var fit = Math.max(1, Math.floor((BOTTOM - y - 3) / 3.7));
+    var part = remaining.splice(0, fit), h2 = Math.max(part.length * 3.7 + 3, 12);
+    grid(); doc.rect(M, y, W, h2, 'S');
+    font('normal', 8.2); doc.text(part, M + 2, y + 4.2);
+    y += h2;
+    if (remaining.length) { doc.addPage(); y = M; }
+  }
+  y += 4;
+
+  // ---------- Pengesahan
+  var SH = 44; need(5 + SH);
+  font('bold', 9, DARK); doc.text('PENGESAHAN', M, y + 3); y += 5;
+  var CW = W / 3;
+  PENGESAHAN.forEach(function (p, k) {
+    var x = M + k * CW, t = (d.ttd && d.ttd[p.key]) || {};
+    grid(); doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]); doc.rect(x, y, CW, 9, 'FD'); doc.rect(x, y, CW, SH, 'S');
+    font('bold', 8, DARK); doc.text(p.judul, x + CW / 2, y + 3.8, { align: 'center' });
+    font('normal', 7, [70, 70, 70]); doc.text('(' + p.ket + ')', x + CW / 2, y + 7.3, { align: 'center' });
+    if (t.img) { try { doc.addImage(t.img, 'JPEG', x + 6, y + 10, CW - 12, (CW - 12) * 0.4); } catch (e) {} }
+    font('normal', 8);
+    doc.text(lines('Nama: ' + (t.nama || '-'), CW - 4).slice(0, 2), x + 2, y + SH - 9.5);
+    doc.text('Jam: ' + (t.jam || '-'), x + 2, y + SH - 2);
+  });
+  y += SH;
+
+  // ---------- Footer tiap halaman
+  var n = doc.getNumberOfPages();
+  for (var p = startPage; p <= n; p++) {
+    doc.setPage(p);
+    font('italic', 7.5, DARK);
+    doc.text(pdfSafe('Keselamatan adalah budaya kita • Kerja Aman, Masa Depan Lebih Baik'), 105, PH - 8.5, { align: 'center' });
+    font('normal', 6.5, [110, 110, 110]);
+    doc.text(pdfSafe('ID: ' + d.id + '  |  Diisi online ' + (d.waktuKirim || '')), M, PH - 5);
+    doc.text('Hal. ' + (p - startPage + 1) + ' / ' + (n - startPage + 1), 210 - M, PH - 5, { align: 'right' });
+  }
+  return doc;
+}
+
+if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGESAHAN: PENGESAHAN, buildPdf: buildPdf, pdfSafe: pdfSafe };
+</script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var IDENT = ['nama', 'nik', 'jabatan', 'tanggal', 'shift', 'lokasi', 'pekerjaan', 'unit'];
+  var INGAT = ['nama', 'nik', 'jabatan', 'unit'];           // diingat di HP ini
+  var TOTAL = SECTIONS.reduce(function (a, s) { return a + s.items.length; }, 0);
+  var store = {
+    get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+    set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+  };
+  var memQueue = [];                                        // cadangan bila localStorage tidak tersedia
+  var GAS = !!(window.google && google.script && google.script.run);
+  var BISA_KIRIM = /^https:\/\//.test(CONFIG.FLOW_URL || '');
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function today() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function jam() { var d = new Date(); return pad2(d.getHours()) + ':' + pad2(d.getMinutes()); }
+
+  // ---------- Bangun tampilan
+  $('demo').hidden = BISA_KIRIM;
+  $('shift').innerHTML = '<option value="">Pilih…</option>' + CONFIG.SHIFT.map(function (s) { return '<option>' + esc(s) + '</option>'; }).join('');
+  $('sections').innerHTML = SECTIONS.map(function (s) {
+    return '<section><h2>' + esc(s.judul) + '<small>' + esc(s.sub) + '</small></h2>' + s.items.map(function (it, i) {
+      var k = s.id + (i + 1);
+      return '<div class="item" id="it' + k + '"><div class="q"><div class="n">' + (i + 1) + '</div><div class="t"><b>' + esc(it[0]) + '</b>' +
+        (it[1] ? '<span>' + esc(it[1]) + '</span>' : '') + '</div></div><div class="seg" role="radiogroup" aria-label="' + esc(it[0]) + '">' +
+        ['Ya', 'Tidak', 'N/A'].map(function (v) { return '<label><input type="radio" name="' + k + '" value="' + v + '"><span>' + v + '</span></label>'; }).join('') +
+        '</div><div class="note" id="nw' + k + '" hidden><input type="text" id="n' + k + '" placeholder="Catatan" aria-label="Catatan item ' + (i + 1) + '"></div>' +
+        '<button type="button" class="note-toggle" data-k="' + k + '">+ catatan</button></div>';
+    }).join('') + '</section>';
+  }).join('');
+  $('sigs').innerHTML = PENGESAHAN.map(function (p) {
+    return '<div class="sig" id="sg' + p.key + '"><h3>' + p.judul + ' <small>(' + p.ket + ')</small></h3>' +
+      '<label class="f" style="margin:0">Nama<input type="text" id="nm' + p.key + '"></label>' +
+      '<div class="pad-wrap"><canvas id="cv' + p.key + '" width="600" height="240"></canvas><div class="ph" id="ph' + p.key + '">Tanda tangan di sini</div></div>' +
+      '<div class="sig-meta"><span>Jam: <b id="jm' + p.key + '">–</b></span><button type="button" class="btn-sm" data-clear="' + p.key + '">Hapus</button></div></div>';
+  }).join('');
+
+  // ---------- Isi awal
+  var saved = store.get('c86_ident', {});
+  INGAT.forEach(function (k) { if (saved[k]) $(k).value = saved[k]; });
+  if (!$('unit').value) $('unit').value = CONFIG.UNIT_DEFAULT;
+  $('tanggal').value = today();
+  $('nama').addEventListener('input', function () { if (!sig.pekerja.touched) $('nmpekerja').value = this.value; });
+  $('nmpekerja').value = $('nama').value;
+  $('nmpekerja').addEventListener('input', function () { sig.pekerja.touched = true; });
+
+  // ---------- Tanda tangan
+  var sig = {};
+  PENGESAHAN.forEach(function (p) {
+    var cv = $('cv' + p.key), ctx = cv.getContext('2d'), st = sig[p.key] = { signed: false, jam: '', touched: false }, last = null;
+    function reset() { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height); st.signed = false; st.jam = ''; $('jm' + p.key).textContent = '–'; $('ph' + p.key).hidden = false; }
+    function pos(e) { var r = cv.getBoundingClientRect(); return { x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height }; }
+    reset(); st.reset = reset; st.data = function () { var q = 0.6, u = cv.toDataURL('image/jpeg', q); while (u.length > 40000 && q > 0.15) { q -= 0.15; u = cv.toDataURL('image/jpeg', q); } return u; };
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    cv.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+      last = pos(e); ctx.strokeStyle = '#0b1f5c'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(last.x, last.y, 1.6, 0, 6.3); ctx.fillStyle = '#0b1f5c'; ctx.fill();
+      if (!st.signed) { st.signed = true; st.jam = jam(); $('jm' + p.key).textContent = st.jam; $('ph' + p.key).hidden = true; $('sg' + p.key).classList.remove('field-err'); }
+    });
+    cv.addEventListener('pointermove', function (e) {
+      if (!last) return; e.preventDefault(); var q = pos(e);
+      ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(q.x, q.y); ctx.stroke(); last = q;
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (ev) { cv.addEventListener(ev, function () { last = null; }); });
+  });
+
+  // ---------- Interaksi
+  function answers() {
+    var o = {}; SECTIONS.forEach(function (s) { s.items.forEach(function (_, i) {
+      var k = s.id + (i + 1), r = document.querySelector('input[name="' + k + '"]:checked'); if (r) o[k] = r.value;
+    }); }); return o;
+  }
+  function secState(id, a) {
+    var s = SECTIONS.filter(function (x) { return x.id === id; })[0], done = true, tidak = false;
+    s.items.forEach(function (_, i) { var v = a[id + (i + 1)]; if (!v) done = false; if (v === 'Tidak') tidak = true; });
+    return tidak ? 'TIDAK' : (done ? 'YA' : '');
+  }
+  function refresh() {
+    var a = answers(), n = Object.keys(a).length, nt = 0;
+    Object.keys(a).forEach(function (k) {
+      var t = a[k] === 'Tidak'; if (t) nt++;
+      $('it' + k).classList.toggle('tidak', t);
+      if (t) { $('nw' + k).hidden = false; $('n' + k).placeholder = 'Jelaskan (wajib diisi)'; var tg = document.querySelector('[data-k="' + k + '"]'); if (tg) tg.hidden = true; } else $('n' + k).placeholder = 'Catatan';
+    });
+    $('prog').textContent = n + ' / ' + TOTAL; $('fill').style.width = (100 * n / TOTAL) + '%';
+    $('stop').classList.toggle('on', nt > 0); $('ntidak').textContent = nt;
+    [['sumA', 'A'], ['sumB', 'B']].forEach(function (p) {
+      var v = secState(p[1], a), el = $(p[0]); el.textContent = v || '–'; el.className = 'pill' + (v ? ' ' + v.toLowerCase() : '');
+    });
+  }
+  document.addEventListener('change', function (e) {
+    if (e.target.type === 'radio') { var it = e.target.closest('.item'); if (it) it.classList.remove('err'); $('msg').classList.remove('on'); $('amanWrap').classList.remove('field-err'); refresh(); }
+  });
+  document.addEventListener('click', function (e) {
+    var k = e.target.getAttribute('data-k'), c = e.target.getAttribute('data-clear');
+    if (k) { $('nw' + k).hidden = false; $('n' + k).focus(); e.target.hidden = true; }
+    if (c) sig[c].reset();
+  });
+  document.addEventListener('input', function (e) { if (e.target.classList) e.target.classList.remove('field-err'); $('msg').classList.remove('on'); });
+
+  // ---------- Validasi & kumpulkan data
+  function collect() {
+    var errs = [], first = null, a = answers();
+    function bad(el, m) { el.classList.add(el.classList.contains('item') ? 'err' : 'field-err'); if (!first) first = el; if (errs.indexOf(m) < 0) errs.push(m); }
+    var ident = {};
+    IDENT.forEach(function (k) { ident[k] = $(k).value.trim(); if (!ident[k]) bad($(k), 'Lengkapi identitas'); });
+    var cat = {};
+    SECTIONS.forEach(function (s) { s.items.forEach(function (_, i) {
+      var k = s.id + (i + 1); cat[k] = $('n' + k).value.trim();
+      if (!a[k]) bad($('it' + k), 'Jawab semua item'); else if (a[k] === 'Tidak' && !cat[k]) bad($('it' + k), 'Isi catatan pada item "Tidak"');
+    }); });
+    var am = document.querySelector('input[name="aman"]:checked');
+    if (!am) bad($('amanWrap'), 'Pilih pernyataan AMAN: Ya / Tidak');
+    var ttd = {};
+    PENGESAHAN.forEach(function (p) {
+      var wajib = p.key === 'pekerja' || CONFIG.WAJIB_TTD_PENGAWAS, nm = $('nm' + p.key).value.trim(), st = sig[p.key];
+      if (wajib && (!nm || !st.signed)) bad($('sg' + p.key), 'Lengkapi nama & tanda tangan pengesahan');
+      ttd[p.key] = { nama: nm, jam: st.signed ? st.jam : '', img: st.signed ? st.data() : null };
+    });
+    if (errs.length) return { errs: errs, first: first };
+    var tgl = ident.tanggal.split('-'), now = new Date();
+    ident.tanggalTampil = tgl[2] + '/' + tgl[1] + '/' + tgl[0];
+    var tidakList = [];
+    SECTIONS.forEach(function (s) { s.items.forEach(function (it, i) { var k = s.id + (i + 1); if (a[k] === 'Tidak') tidakList.push(k + ' ' + it[0] + ': ' + cat[k]); }); });
+    var id = ident.tanggal.replace(/-/g, '') + '-' + pad2(now.getHours()) + pad2(now.getMinutes()) + pad2(now.getSeconds()) + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
+    return { data: {
+      id: id, ident: ident, jawab: a, cat: cat, semuaWajib: secState('A', a), semuaLangkah: secState('B', a), aman: am.value,
+      catatan: $('catatan').value.trim(), ttd: ttd, tidakList: tidakList,
+      waktuKirim: pad2(now.getDate()) + '/' + pad2(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + jam()
+    } };
+  }
+  function payloadOf(d) {
+    var I = d.ident, T = d.ttd;
+    function tt(k) { return { nama: T[k].nama, jam: T[k].jam }; }
+    return {
+      kunci: CONFIG.KUNCI, id: d.id,
+      tanggal: I.tanggal, shift: I.shift, nama: I.nama, nik: I.nik, jabatan: I.jabatan, lokasi: I.lokasi, pekerjaan: I.pekerjaan, unit: I.unit,
+      jumlahTidak: d.tidakList.length, itemTidak: d.tidakList.join(' | '),
+      semuaWajib: d.semuaWajib, semuaLangkah: d.semuaLangkah, aman: d.aman, catatan: d.catatan,
+      pengawasGC: T.gc.nama, pengawasArea: T.area.nama, waktuIsi: d.waktuKirim,
+      detail: JSON.stringify({ jawab: d.jawab, cat: d.cat, ttd: { pekerja: tt('pekerja'), gc: tt('gc'), area: tt('area') } }),
+      ttdPekerja: T.pekerja.img || '', ttdGC: T.gc.img || '', ttdArea: T.area.img || ''
+    };
+  }
+
+  // ---------- Penyimpanan di HP (IndexedDB): "riwayat" = semua checklist, "antre" = yang belum terkirim ke rekap
+  function post(p) {
+    function cek(r) { if (!r || !r.ok) { var e = new Error((r && r.error) || 'Ditolak server'); e.tolak = true; throw e; } return r; }
+    // text/plain = "simple request", tidak memicu preflight CORS.
+    return fetch(CONFIG.FLOW_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=UTF-8' }, body: JSON.stringify(p) })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(cek);
+  }
+  var DB = null, memQ = [], memH = [], currentId = null, lastD = null, flushing = false, lastErr = '', lastPdf = null;
+  function idb() {
+    return new Promise(function (res, rej) {
+      if (DB) return res(DB);
+      var r = indexedDB.open('c86', 2);
+      r.onupgradeneeded = function () {
+        var db = r.result;
+        if (!db.objectStoreNames.contains('antre')) db.createObjectStore('antre', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('riwayat')) db.createObjectStore('riwayat', { keyPath: 'id' });
+      };
+      r.onsuccess = function () { DB = r.result; res(DB); };
+      r.onerror = function () { rej(r.error); };
+    });
+  }
+  function tx(st, mode, fn) {
+    return idb().then(function (db) { return new Promise(function (res, rej) {
+      var t = db.transaction(st, mode), q = fn(t.objectStore(st));
+      t.oncomplete = function () { res(q && q.result); }; t.onerror = t.onabort = function () { rej(t.error); };
+    }); });
+  }
+  var Q = {
+    add: function (p) { return tx('antre', 'readwrite', function (s) { return s.put(p); }).then(function () { return true; }, function () { memQ.push(p); return false; }); },
+    del: function (id) { memQ = memQ.filter(function (x) { return x.id !== id; }); return tx('antre', 'readwrite', function (s) { return s.delete(id); }).catch(function () {}); },
+    all: function () { return tx('antre', 'readonly', function (s) { return s.getAll(); }).then(function (a) { return (a || []).concat(memQ); }, function () { return memQ.slice(); }); }
+  };
+  var H = {
+    add: function (d) { return tx('riwayat', 'readwrite', function (s) { return s.put(d); }).then(function () { return true; }, function () { memH.push(d); return false; }); },
+    all: function () { return tx('riwayat', 'readonly', function (s) { return s.getAll(); }).then(function (a) { return (a || []).concat(memH); }, function () { return memH.slice(); }); }
+  };
+  function showQueue() {
+    return Q.all().then(function (list) {
+      $('qn').textContent = list.length; $('queue').classList.toggle('on', list.length > 0);
+      $('qerr').textContent = lastErr ? 'Ditolak server: ' + lastErr + '. Hubungi admin.' : '';
+      if (currentId && $('done').style.display === 'block' && $('done').getAttribute('data-s') === 'saved') {
+        if (!list.some(function (x) { return x.id === currentId; })) showDone('ok');
+      }
+      if ($('hist').style.display === 'block') renderHist();
+    });
+  }
+  function flush() {
+    if (flushing || !BISA_KIRIM) return Promise.resolve();
+    flushing = true;
+    return Q.all().then(function (list) {
+      var i = 0;
+      function next() {
+        if (i >= list.length) return;
+        var p = list[i++];
+        return post(p).then(function () { lastErr = ''; return Q.del(p.id); }).then(next);
+      }
+      return next();
+    }).catch(function (e) { lastErr = (e && e.tolak) ? e.message : ''; })
+      .then(function () { flushing = false; return showQueue(); });
+  }
+  function regSync() {   // Android/Chrome: kirim di latar belakang walau aplikasi ditutup
+    try { navigator.serviceWorker.ready.then(function (r) { if (r.sync) return r.sync.register('kirim-antre'); }).catch(function () {}); } catch (e) {}
+  }
+  window.addEventListener('online', flush);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) flush(); });
+  setInterval(flush, 60000);
+  $('qsend').addEventListener('click', flush);
+  $('dsend').addEventListener('click', flush);
+  showQueue().then(flush);
+
+  // ---------- Pasang untuk pemakaian tanpa sinyal
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+    navigator.serviceWorker.ready.then(function () { var c = $('off'); c.textContent = 'Siap tanpa sinyal'; c.className = 'chip ok'; });
+    navigator.serviceWorker.addEventListener('message', function (e) { if (e.data === 'antre-berubah') showQueue(); });
+  }
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
+
+  // ---------- PDF: dibuat di HP dari data riwayat
+  function clean(s) { return String(s).replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 30); }
+  function makePdf(list, dari, sampai) {
+    var doc = null; list.forEach(function (d) { doc = buildPdf(window.jspdf.jsPDF, d, doc); });
+    var I = list[0].ident, satuNik = list.every(function (d) { return d.ident.nik === I.nik; });
+    var name = list.length === 1 ? 'Checklist86_' + I.tanggal + '_' + clean(I.shift) + '_' + clean(I.nik) + '_' + clean(I.nama) + '.pdf'
+      : 'Checklist86_' + (satuNik ? clean(I.nik) + '_' + clean(I.nama) : 'gabungan') + '_' + dari + '_sd_' + sampai + '.pdf';
+    lastPdf = { blob: doc.output('blob'), name: name };
+  }
+  function download() {
+    var a = document.createElement('a'); a.href = URL.createObjectURL(lastPdf.blob); a.download = lastPdf.name;
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+  }
+  function berkas() { try { return new File([lastPdf.blob], lastPdf.name, { type: 'application/pdf' }); } catch (e) { return null; } }
+  function bisaBagi() { try { var f = new File([new Blob(['x'], { type: 'application/pdf' })], 'x.pdf', { type: 'application/pdf' }); return !!(navigator.canShare && navigator.canShare({ files: [f] })); } catch (e) { return false; } }
+  function bagikan() { var f = berkas(); if (f && bisaBagi()) navigator.share({ files: [f], title: lastPdf.name }).catch(function () {}); else download(); }
+
+  // ---------- Layar
+  function tampil(v) {
+    $('formview').style.display = v === 'form' ? '' : 'none'; $('act').style.display = v === 'form' ? '' : 'none'; $('bar').style.display = v === 'form' ? '' : 'none';
+    $('done').style.display = v === 'done' ? 'block' : 'none'; $('hist').style.display = v === 'hist' ? 'block' : 'none';
+    $('bh').textContent = v === 'hist' ? 'Form' : 'Riwayat'; window.scrollTo(0, 0);
+  }
+  function showDone(state) {
+    tampil('done'); var d = $('done'), hijau = state === 'ok' || state === 'lokal';
+    d.setAttribute('data-s', state); d.className = hijau ? '' : 'pending';
+    $('doneIc').innerHTML = hijau ? '&#10003;' : '&#8635;';
+    $('doneT').textContent = { ok: 'Checklist terkirim', lokal: 'Checklist tersimpan', saved: 'Tersimpan di HP ini', mem: 'Belum tersimpan aman' }[state];
+    $('doneP').textContent = {
+      ok: 'Tersimpan di HP ini dan sudah masuk ke rekap. PDF bisa diunduh kapan saja dari menu Riwayat.',
+      lokal: 'Tersimpan di HP ini. PDF bisa diunduh kapan saja dari menu Riwayat, per tanggal atau rentang tanggal.',
+      saved: 'Tersimpan di HP ini dan akan terkirim ke rekap begitu ada sinyal. PDF bisa diunduh kapan saja dari menu Riwayat.',
+      mem: 'HP ini tidak mengizinkan penyimpanan. Unduh PDF sekarang juga dan JANGAN tutup aplikasi sebelum itu.'
+    }[state];
+    $('doneF').textContent = 'ID: ' + currentId; $('dsend').hidden = state !== 'saved';
+  }
+  $('dpdf').addEventListener('click', function () { if (lastD) { makePdf([lastD]); download(); } });
+  $('dh').addEventListener('click', function () { bukaHist(lastD ? lastD.ident.tanggal : today()); });
+
+  // ---------- Riwayat & unduh PDF per tanggal
+  var histList = [];
+  function renderHist() {
+    var dari = $('hdari').value, sampai = $('hsampai').value;
+    return Promise.all([H.all(), Q.all()]).then(function (r) {
+      var antre = {}; r[1].forEach(function (x) { antre[x.id] = 1; });
+      histList = r[0].filter(function (d) { var t = d.ident.tanggal; return (!dari || t >= dari) && (!sampai || t <= sampai); })
+        .sort(function (a, b) { return (a.ident.tanggal + a.id).localeCompare(b.ident.tanggal + b.id); });
+      $('hn').textContent = histList.length + ' checklist pada rentang ini (dari ' + r[0].length + ' yang tersimpan di HP)';
+      $('hlist').innerHTML = histList.map(function (d) {
+        var I = d.ident, nt = (d.tidakList || []).length;
+        return '<div class="hrow"><div><b>' + esc(I.tanggalTampil) + ' • ' + esc(I.shift) + '</b><span>' + esc(I.nama) + ' • ' + esc(I.lokasi) + '</span></div><div class="hs">' +
+          (nt ? '<i class="t">' + nt + ' Tidak</i>' : '') + (BISA_KIRIM ? (antre[d.id] ? '<i class="p">Belum terkirim</i>' : '<i>Terkirim</i>') : '') + '</div></div>';
+      }).join('');
+      $('hpdf').disabled = $('hshare').disabled = !histList.length; $('hshare').hidden = !bisaBagi();
+    });
+  }
+  function bukaHist(tgl) { if (tgl) { $('hdari').value = tgl; $('hsampai').value = tgl; } tampil('hist'); renderHist(); }
+  function buatHist(lalu) {
+    if (!histList.length) return;
+    var b = $('hpdf'); b.disabled = true; b.textContent = 'Membuat PDF…';
+    setTimeout(function () {
+      try { makePdf(histList, $('hdari').value, $('hsampai').value); lalu(); }
+      catch (e) { $('hn').textContent = 'Gagal membuat PDF: ' + e.message; }
+      b.disabled = false; b.textContent = 'Unduh PDF';
+    }, 30);
+  }
+  $('hpdf').addEventListener('click', function () { buatHist(download); });
+  $('hshare').addEventListener('click', function () { buatHist(bagikan); });
+  $('hdari').addEventListener('change', renderHist); $('hsampai').addEventListener('change', renderHist);
+  $('bh').addEventListener('click', function () {
+    if ($('hist').style.display === 'block') { tampil(currentId ? 'done' : 'form'); return; }
+    if (!$('hdari').value) { var n = new Date(); $('hdari').value = n.getFullYear() + '-' + pad2(n.getMonth() + 1) + '-01'; $('hsampai').value = today(); }
+    bukaHist();
+  });
+
+  function resetForm() {
+    var i, r = document.querySelectorAll('input[type=radio]'); for (i = 0; i < r.length; i++) r[i].checked = false;
+    SECTIONS.forEach(function (s) { s.items.forEach(function (_, j) {
+      var k = s.id + (j + 1); $('n' + k).value = ''; $('nw' + k).hidden = true; $('it' + k).className = 'item';
+      document.querySelector('[data-k="' + k + '"]').hidden = false;
+    }); });
+    ['lokasi', 'pekerjaan', 'catatan', 'nmgc', 'nmarea'].forEach(function (k) { $(k).value = ''; });
+    PENGESAHAN.forEach(function (p) { sig[p.key].reset(); });
+    $('tanggal').value = today(); $('shift').value = ''; currentId = null; lastD = null;
+    $('kirim').disabled = false; $('kirim').textContent = 'Simpan Checklist'; tampil('form'); refresh(); showQueue();
+  }
+  $('again').addEventListener('click', resetForm);
+
+  $('kirim').addEventListener('click', function () {
+    var r = collect(), msg = $('msg'), btn = this;
+    if (r.errs) {
+      msg.textContent = r.errs.join(' • '); msg.classList.add('on');
+      r.first.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
+    }
+    msg.classList.remove('on');
+    var d = r.data, sv = {}; INGAT.forEach(function (k) { sv[k] = d.ident[k]; }); store.set('c86_ident', sv);
+    btn.disabled = true; btn.textContent = 'Menyimpan…';
+    H.add(d).then(function (aman) {
+      currentId = d.id; lastD = d;
+      if (!BISA_KIRIM) { showDone(aman ? 'lokal' : 'mem'); return; }
+      return Q.add(payloadOf(d)).then(function (aman2) {
+        showDone(aman && aman2 ? 'saved' : 'mem');
+        flush().then(function () { return Q.all(); }).then(function (l) { if (l.length) regSync(); });
+      });
+    });
+  });
+  refresh();
+})();
+</script>
+</body>
+</html>
