@@ -1,6 +1,6 @@
 /* Service worker: membuat form bisa dibuka tanpa sinyal dan mengirim antrean di latar belakang.
    Naikkan angka VERSI setiap kali index.html atau config.js diubah. */
-var VERSI = 'c86-v3';
+var VERSI = 'c86-v5';
 var BERKAS = ['./', 'index.html', 'config.js', 'jspdf.umd.min.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 importScripts('config.js');
 

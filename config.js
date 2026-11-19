@@ -9,6 +9,8 @@ self.CONFIG = {
   KUNCI: "gc123",
   // true = tanda tangan kedua pengawas wajib sebelum bisa kirim.
   WAJIB_TTD_PENGAWAS: true,
+  // Pilihan departemen. Isi satu saja bila aplikasi ini khusus satu departemen.
+  DEPARTEMEN: ["Mine Survey", "Mine Plan", "Mine Development", "Geotech"],
   // Pilihan shift
   SHIFT: ["Shift 1", "Shift 2", "Shift 3", "Non-shift"],
   // Isi awal kolom Perusahaan / Unit

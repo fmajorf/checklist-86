@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#143d36">
-<title>Checklist Harian Prinsip 8.6</title>
+<title>Checklist 8.6 – Mine Plan &amp; Development Bureau</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <script src="config.js"></script>
@@ -16,6 +16,7 @@
   body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);font-size:16px;line-height:1.4}
   header{background:var(--dark);color:#fff;padding:14px 16px 12px;text-align:center}
   header h1{margin:0;font-size:18px;letter-spacing:.3px}
+  header .biro{font-size:11px;font-weight:700;letter-spacing:.6px;color:#c8ded7;margin-bottom:2px}
   header p{margin:3px 0 0;color:var(--gold);font-size:12px;font-weight:700;letter-spacing:.4px}
   .bar{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:8px 16px;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:10px}
   .bar .track{flex:1;height:6px;background:var(--light);border-radius:3px;overflow:hidden}
@@ -103,6 +104,7 @@
 <body>
 <header>
   <button type="button" class="hbtn" id="bh">Riwayat</button>
+  <div class="biro">MINE PLAN &amp; DEVELOPMENT BUREAU</div>
   <h1>DAILY ASSESSMENT CHECKLIST</h1>
   <p>PRINSIP 8.6 &bull; 8 WAJIB &amp; 6 LANGKAH MENUJU SELAMAT</p>
 </header>
@@ -124,6 +126,7 @@
         <label class="f">ID / NIK<input type="text" id="nik" inputmode="text" autocomplete="off"></label>
         <label class="f">Jabatan<input type="text" id="jabatan"></label>
       </div>
+      <label class="f" id="deptWrap">Departemen<select id="departemen"></select></label>
       <div class="two">
         <label class="f">Tanggal<input type="date" id="tanggal"></label>
         <label class="f">Shift<select id="shift"></select></label>
@@ -232,9 +235,14 @@ var SECTIONS = [
 
 var PENGESAHAN = [
   { key: 'pekerja', judul: 'PEKERJA', ket: 'Dilakukan / Disusun' },
-  { key: 'gc', judul: 'PENGAWAS GRADE CONTROL', ket: 'Diperiksa' },
+  { key: 'gc', judul: 'PENGAWAS DEPARTEMEN', ket: 'Diperiksa' },
   { key: 'area', judul: 'PENGAWAS AREA', ket: 'Diperiksa' }
 ];
+
+var BIRO = 'Mine Plan & Development Bureau';
+/* Data lama yang belum punya departemen ditampilkan "-". */
+function namaDept(d) { return (d && (d.departemen || (d.ident && d.ident.departemen))) || '-'; }
+function judulTtd(p, d) { var n = namaDept(d); return p.key === 'gc' ? (n === '-' ? p.judul : 'PENGAWAS ' + n.toUpperCase()) : p.judul; }
 
 /* Font standar PDF hanya mendukung Latin-1: ganti karakter di luar itu. */
 function pdfSafe(s) {
@@ -270,7 +278,9 @@ function buildPdf(jsPDF, d, doc) {
   }
 
   // ---------- Kop
-  doc.setFillColor(DARK[0], DARK[1], DARK[2]); doc.rect(M, y, W, 16, 'F');
+  doc.setFillColor(DARK[0], DARK[1], DARK[2]); doc.rect(M, y, W, 20, 'F');
+  font('bold', 8, [200, 222, 215]); doc.text(pdfSafe(BIRO.toUpperCase() + '  \u2022  UBPE PONGKOR'), 105, y + 4.6, { align: 'center' });
+  y += 4;
   font('bold', 14, [255, 255, 255]); doc.text('DAILY ASSESSMENT CHECKLIST', 105, y + 7, { align: 'center' });
   font('bold', 9, [233, 196, 106]); doc.text(pdfSafe('PRINSIP 8.6  •  8 WAJIB & 6 LANGKAH MENUJU SELAMAT'), 105, y + 12.5, { align: 'center' });
   y += 19;
@@ -282,19 +292,21 @@ function buildPdf(jsPDF, d, doc) {
   var I = d.ident, LW = 31, VW = W / 2 - LW;
   var idRows = [
     ['NAMA', I.nama, 'ID / NIK', I.nik],
-    ['JABATAN', I.jabatan, 'TANGGAL', I.tanggalTampil || I.tanggal],
-    ['LOKASI / AREA KERJA', I.lokasi, 'SHIFT', I.shift],
-    ['PEKERJAAN HARI INI', I.pekerjaan, 'PERUSAHAAN / UNIT', I.unit]
+    ['JABATAN', I.jabatan, 'DEPARTEMEN', namaDept(d)],
+    ['TANGGAL', I.tanggalTampil || I.tanggal, 'SHIFT', I.shift],
+    ['LOKASI / AREA KERJA', I.lokasi, 'PERUSAHAAN / UNIT', I.unit],
+    ['PEKERJAAN HARI INI', I.pekerjaan]
   ];
   idRows.forEach(function (r) {
+    var penuh = r.length === 2, VW1 = penuh ? W - LW : VW;
     font('normal', 8.5);
-    var a = lines(r[1], VW - 3), b = lines(r[3], VW - 3);
+    var a = lines(r[1], VW1 - 3), b = penuh ? [] : lines(r[3], VW - 3);
     var h = Math.max(a.length, b.length) * 3.6 + 2.6;
     grid();
-    [0, 1].forEach(function (k) {
+    (penuh ? [0] : [0, 1]).forEach(function (k) {
       var x = M + k * (W / 2);
       doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]); doc.rect(x, y, LW, h, 'FD');
-      doc.rect(x + LW, y, VW, h, 'S');
+      doc.rect(x + LW, y, k ? VW : VW1, h, 'S');
       font('bold', 7.2, DARK); doc.text(r[k * 2], x + 1.5, y + 4.1);
       font('normal', 8.5); doc.text(k ? b : a, x + LW + 1.5, y + 4.2);
     });
@@ -396,7 +408,7 @@ function buildPdf(jsPDF, d, doc) {
   PENGESAHAN.forEach(function (p, k) {
     var x = M + k * CW, t = (d.ttd && d.ttd[p.key]) || {};
     grid(); doc.setFillColor(LIGHT[0], LIGHT[1], LIGHT[2]); doc.rect(x, y, CW, 9, 'FD'); doc.rect(x, y, CW, SH, 'S');
-    font('bold', 8, DARK); doc.text(p.judul, x + CW / 2, y + 3.8, { align: 'center' });
+    font('bold', 8, DARK); doc.text(lines(judulTtd(p, d), CW - 3)[0], x + CW / 2, y + 3.8, { align: 'center' });
     font('normal', 7, [70, 70, 70]); doc.text('(' + p.ket + ')', x + CW / 2, y + 7.3, { align: 'center' });
     if (t.img) { try { doc.addImage(t.img, 'JPEG', x + 6, y + 10, CW - 12, (CW - 12) * 0.4); } catch (e) {} }
     font('normal', 8);
@@ -418,14 +430,14 @@ function buildPdf(jsPDF, d, doc) {
   return doc;
 }
 
-if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGESAHAN: PENGESAHAN, buildPdf: buildPdf, pdfSafe: pdfSafe };
+if (typeof module !== 'undefined') module.exports = { BIRO: BIRO, SECTIONS: SECTIONS, PENGESAHAN: PENGESAHAN, buildPdf: buildPdf, pdfSafe: pdfSafe, namaDept: namaDept };
 </script>
 <script>
 (function () {
   'use strict';
   var $ = function (id) { return document.getElementById(id); };
-  var IDENT = ['nama', 'nik', 'jabatan', 'tanggal', 'shift', 'lokasi', 'pekerjaan', 'unit'];
-  var INGAT = ['nama', 'nik', 'jabatan', 'unit'];           // diingat di HP ini
+  var IDENT = ['nama', 'nik', 'jabatan', 'departemen', 'tanggal', 'shift', 'lokasi', 'pekerjaan', 'unit'];
+  var INGAT = ['nama', 'nik', 'jabatan', 'departemen', 'unit'];           // diingat di HP ini
   var TOTAL = SECTIONS.reduce(function (a, s) { return a + s.items.length; }, 0);
   var store = {
     get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
@@ -442,6 +454,9 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
   // ---------- Bangun tampilan
   $('demo').hidden = BISA_KIRIM;
   $('shift').innerHTML = '<option value="">Pilih…</option>' + CONFIG.SHIFT.map(function (s) { return '<option>' + esc(s) + '</option>'; }).join('');
+  var DEPTS = (CONFIG.DEPARTEMEN && CONFIG.DEPARTEMEN.length) ? CONFIG.DEPARTEMEN : ['-'];
+  $('departemen').innerHTML = (DEPTS.length > 1 ? '<option value="">Pilih…</option>' : '') + DEPTS.map(function (s) { return '<option>' + esc(s) + '</option>'; }).join('');
+  if (DEPTS.length === 1) $('deptWrap').hidden = true;
   $('sections').innerHTML = SECTIONS.map(function (s) {
     return '<section><h2>' + esc(s.judul) + '<small>' + esc(s.sub) + '</small></h2>' + s.items.map(function (it, i) {
       var k = s.id + (i + 1);
@@ -453,7 +468,7 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
     }).join('') + '</section>';
   }).join('');
   $('sigs').innerHTML = PENGESAHAN.map(function (p) {
-    return '<div class="sig" id="sg' + p.key + '"><h3>' + p.judul + ' <small>(' + p.ket + ')</small></h3>' +
+    return '<div class="sig" id="sg' + p.key + '"><h3><span id="jd' + p.key + '">' + p.judul + '</span> <small>(' + p.ket + ')</small></h3>' +
       '<label class="f" style="margin:0">Nama<input type="text" id="nm' + p.key + '"></label>' +
       '<div class="pad-wrap"><canvas id="cv' + p.key + '" width="600" height="240"></canvas><div class="ph" id="ph' + p.key + '">Tanda tangan di sini</div></div>' +
       '<div class="sig-meta"><span>Jam: <b id="jm' + p.key + '">–</b></span><button type="button" class="btn-sm" data-clear="' + p.key + '">Hapus</button></div></div>';
@@ -463,12 +478,16 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
   var saved = store.get('c86_ident', {});
   INGAT.forEach(function (k) { if (saved[k]) $(k).value = saved[k]; });
   if (!$('unit').value) $('unit').value = CONFIG.UNIT_DEFAULT;
+  if (DEPTS.indexOf($('departemen').value) < 0) $('departemen').value = DEPTS.length === 1 ? DEPTS[0] : '';
+  function labelDept() { var v = $('departemen').value; $('jdgc').textContent = v ? 'PENGAWAS ' + v.toUpperCase() : 'PENGAWAS DEPARTEMEN'; }
+  $('departemen').addEventListener('change', labelDept);
   $('tanggal').value = today();
   $('nama').addEventListener('input', function () { if (!sig.pekerja.touched) $('nmpekerja').value = this.value; });
   $('nmpekerja').value = $('nama').value;
   $('nmpekerja').addEventListener('input', function () { sig.pekerja.touched = true; });
 
   // ---------- Tanda tangan
+  setTimeout(labelDept, 0);
   var sig = {};
   PENGESAHAN.forEach(function (p) {
     var cv = $('cv' + p.key), ctx = cv.getContext('2d'), st = sig[p.key] = { signed: false, jam: '', touched: false }, last = null;
@@ -549,7 +568,7 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
     SECTIONS.forEach(function (s) { s.items.forEach(function (it, i) { var k = s.id + (i + 1); if (a[k] === 'Tidak') tidakList.push(k + ' ' + it[0] + ': ' + cat[k]); }); });
     var id = ident.tanggal.replace(/-/g, '') + '-' + pad2(now.getHours()) + pad2(now.getMinutes()) + pad2(now.getSeconds()) + '-' + Math.random().toString(36).slice(2, 6).toUpperCase();
     return { data: {
-      id: id, ident: ident, jawab: a, cat: cat, semuaWajib: secState('A', a), semuaLangkah: secState('B', a), aman: am.value,
+      id: id, departemen: ident.departemen, ident: ident, jawab: a, cat: cat, semuaWajib: secState('A', a), semuaLangkah: secState('B', a), aman: am.value,
       catatan: $('catatan').value.trim(), ttd: ttd, tidakList: tidakList,
       waktuKirim: pad2(now.getDate()) + '/' + pad2(now.getMonth() + 1) + '/' + now.getFullYear() + ' ' + jam()
     } };
@@ -558,7 +577,7 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
     var I = d.ident, T = d.ttd;
     function tt(k) { return { nama: T[k].nama, jam: T[k].jam }; }
     return {
-      kunci: CONFIG.KUNCI, id: d.id,
+      kunci: CONFIG.KUNCI, id: d.id, departemen: I.departemen,
       tanggal: I.tanggal, shift: I.shift, nama: I.nama, nik: I.nik, jabatan: I.jabatan, lokasi: I.lokasi, pekerjaan: I.pekerjaan, unit: I.unit,
       jumlahTidak: d.tidakList.length, itemTidak: d.tidakList.join(' | '),
       semuaWajib: d.semuaWajib, semuaLangkah: d.semuaLangkah, aman: d.aman, catatan: d.catatan,
@@ -651,8 +670,9 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
   function makePdf(list, dari, sampai) {
     var doc = null; list.forEach(function (d) { doc = buildPdf(window.jspdf.jsPDF, d, doc); });
     var I = list[0].ident, satuNik = list.every(function (d) { return d.ident.nik === I.nik; });
-    var name = list.length === 1 ? 'Checklist86_' + I.tanggal + '_' + clean(I.shift) + '_' + clean(I.nik) + '_' + clean(I.nama) + '.pdf'
-      : 'Checklist86_' + (satuNik ? clean(I.nik) + '_' + clean(I.nama) : 'gabungan') + '_' + dari + '_sd_' + sampai + '.pdf';
+    var satuDept = list.every(function (d) { return namaDept(d) === namaDept(list[0]); }), dp = satuDept ? clean(namaDept(list[0])) + '_' : '';
+    var name = list.length === 1 ? 'Checklist86_' + dp + I.tanggal + '_' + clean(I.shift) + '_' + clean(I.nik) + '_' + clean(I.nama) + '.pdf'
+      : 'Checklist86_' + dp + (satuNik ? clean(I.nik) + '_' + clean(I.nama) : 'gabungan') + '_' + dari + '_sd_' + sampai + '.pdf';
     lastPdf = { blob: doc.output('blob'), name: name };
   }
   function download() {
@@ -696,7 +716,7 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
       $('hn').textContent = histList.length + ' checklist pada rentang ini (dari ' + r[0].length + ' yang tersimpan di HP)';
       $('hlist').innerHTML = histList.map(function (d) {
         var I = d.ident, nt = (d.tidakList || []).length;
-        return '<div class="hrow"><div><b>' + esc(I.tanggalTampil) + ' • ' + esc(I.shift) + '</b><span>' + esc(I.nama) + ' • ' + esc(I.lokasi) + '</span></div><div class="hs">' +
+        return '<div class="hrow"><div><b>' + esc(I.tanggalTampil) + ' • ' + esc(I.shift) + '</b><span>' + esc(I.nama) + ' \u2022 ' + esc(namaDept(d)) + ' • ' + esc(I.lokasi) + '</span></div><div class="hs">' +
           (nt ? '<i class="t">' + nt + ' Tidak</i>' : '') + (BISA_KIRIM ? (antre[d.id] ? '<i class="p">Belum terkirim</i>' : '<i>Terkirim</i>') : '') + '</div></div>';
       }).join('');
       $('hpdf').disabled = $('hshare').disabled = !histList.length; $('hshare').hidden = !bisaBagi();
@@ -729,7 +749,7 @@ if (typeof module !== 'undefined') module.exports = { SECTIONS: SECTIONS, PENGES
     }); });
     ['lokasi', 'pekerjaan', 'catatan', 'nmgc', 'nmarea'].forEach(function (k) { $(k).value = ''; });
     PENGESAHAN.forEach(function (p) { sig[p.key].reset(); });
-    $('tanggal').value = today(); $('shift').value = ''; currentId = null; lastD = null;
+    $('tanggal').value = today(); $('shift').value = ''; currentId = null; lastD = null; labelDept();
     $('kirim').disabled = false; $('kirim').textContent = 'Simpan Checklist'; tampil('form'); refresh(); showQueue();
   }
   $('again').addEventListener('click', resetForm);
