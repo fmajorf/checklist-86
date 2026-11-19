@@ -45,8 +45,12 @@
   label.f{display:block;margin-bottom:12px;font-size:12px;font-weight:700;color:var(--dark);text-transform:uppercase;letter-spacing:.3px}
   input[type=text],input[type=date],select,textarea{display:block;width:100%;margin-top:4px;padding:11px 12px;font:inherit;font-size:16px;color:var(--text);background:#fff;border:1px solid #aab7b3;border-radius:8px;text-transform:none;font-weight:400;letter-spacing:0}
   textarea{min-height:96px;resize:vertical}
+  /* iPhone: kolom tanggal bawaan Safari punya lebar minimum sendiri sehingga meluber; ratakan ke ukuran kotak */
+  input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;max-width:100%;min-height:46px;text-align:left;line-height:1.25}
+  input[type=date]::-webkit-date-and-time-value{text-align:left;margin:0}
+  input[type=date]::-webkit-datetime-edit{padding:0}
   input:focus,select:focus,textarea:focus{outline:2px solid var(--mid);outline-offset:1px}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
   .item{padding:12px 14px;border-top:1px solid var(--line)}
   .item:first-of-type{border-top:0}
   .item.tidak{background:var(--redbg)}
