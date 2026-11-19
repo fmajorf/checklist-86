@@ -9,7 +9,7 @@ self.CONFIG = {
   BIRO: "Mine Plan & Development Bureau",
   // Opsional: URL web app Apps Script (berakhiran /exec) agar data juga masuk ke rekap pusat.
   // Biarkan kosong bila checklist cukup disimpan di HP dan diunduh sebagai PDF.
-  FLOW_URL: "",
+  FLOW_URL: "https://script.google.com/macros/s/AKfycbyGVCc1VrXP1JFxdkmTYz0t-eRT1x8E4ZgBZj4gc-js75xI8fYfXupyCs-eosM3VzL-/exec",
   // Harus sama dengan KUNCI_FORM di Code.gs.
   KUNCI: "mpd123",
   // true = tanda tangan kedua pengawas wajib sebelum bisa kirim.
