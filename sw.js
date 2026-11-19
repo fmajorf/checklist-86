@@ -1,15 +1,19 @@
 /* Service worker: membuat form bisa dibuka tanpa sinyal dan mengirim antrean di latar belakang.
    Naikkan angka VERSI setiap kali index.html atau config.js diubah. */
-var VERSI = 'c86-v5';
 var BERKAS = ['./', 'index.html', 'config.js', 'jspdf.umd.min.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 importScripts('config.js');
+// Awalan simpanan khusus aplikasi ini (dari ID di config.js). Naikkan angka versi setiap ada perubahan file.
+var ID = self.CONFIG.ID || 'mpd';
+var AWALAN = ID + '-';
+var VERSI = AWALAN + 'v8';
+var NAMA_DB = 'c86' + (ID === 'mpd' ? '' : '-' + ID);
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSI).then(function (c) { return c.addAll(BERKAS.map(function (u) { return new Request(u, { cache: 'reload' }); })); }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener('activate', function (e) {
   e.waitUntil(caches.keys().then(function (ks) {
-    return Promise.all(ks.filter(function (k) { return k !== VERSI; }).map(function (k) { return caches.delete(k); }));
+    return Promise.all(ks.filter(function (k) { return k.indexOf(AWALAN) === 0 && k !== VERSI; }).map(function (k) { return caches.delete(k); }));
   }).then(function () { return self.clients.claim(); }));
 });
 // Berkas form: ambil dari simpanan HP dulu, perbarui diam-diam bila ada sinyal.
@@ -38,7 +42,7 @@ self.addEventListener('fetch', function (e) {
 // ---- kirim antrean saat sinyal kembali (Background Sync, Android/Chrome)
 function buka() {
   return new Promise(function (res, rej) {
-    var r = indexedDB.open('c86', 2);
+    var r = indexedDB.open(NAMA_DB, 2);
     r.onupgradeneeded = function () {
       var db = r.result;
       if (!db.objectStoreNames.contains('antre')) db.createObjectStore('antre', { keyPath: 'id' });
