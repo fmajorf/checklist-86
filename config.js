@@ -11,7 +11,7 @@ self.CONFIG = {
   // Biarkan kosong bila checklist cukup disimpan di HP dan diunduh sebagai PDF.
   FLOW_URL: "",
   // Harus sama dengan KUNCI_FORM di Code.gs.
-  KUNCI: "gc123",
+  KUNCI: "mpd123",
   // true = tanda tangan kedua pengawas wajib sebelum bisa kirim.
   WAJIB_TTD_PENGAWAS: true,
   // Pilihan departemen. Isi satu saja bila aplikasi ini khusus satu departemen.
