@@ -17,7 +17,7 @@ self.CONFIG = {
   // Pilihan departemen. Isi satu saja bila aplikasi ini khusus satu departemen.
   DEPARTEMEN: ["Mine Survey", "Mine Plan", "Mine Development", "Geotech"],
   // Pilihan shift
-  SHIFT: ["Shift 1", "Shift 2", "Shift 3", "Non-shift"],
+  SHIFT: ["Shift 1", "Shift 2", "Shift 3", "Long Shift 1", "Long Shift 2", "Non-shift"],
   // Isi awal kolom Perusahaan / Unit
   UNIT_DEFAULT: "UBPE Pongkor"
 };
