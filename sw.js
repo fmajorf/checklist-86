@@ -5,7 +5,7 @@ importScripts('config.js');
 // Awalan simpanan khusus aplikasi ini (dari ID di config.js). Naikkan angka versi setiap ada perubahan file.
 var ID = self.CONFIG.ID || 'mpd';
 var AWALAN = ID + '-';
-var VERSI = AWALAN + 'v8';
+var VERSI = AWALAN + 'v10';
 var NAMA_DB = 'c86' + (ID === 'mpd' ? '' : '-' + ID);
 
 self.addEventListener('install', function (e) {
